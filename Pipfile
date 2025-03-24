@@ -1,0 +1,20 @@
+[[source]]
+url = "https://pypi.org/simple"
+verify_ssl = true
+name = "pypi"
+
+[packages]
+sqlalchemy = "*"
+alembic = "*"
+pydantic = "*"
+fastapi = "*"
+bcrypt = "*"
+email-validator = "*"
+psycopg2 = "*"
+
+[dev-packages]
+fastapi = {extras = ["standard"], version = "*"}
+
+[requires]
+python_version = "3.13"
+python_full_version = "3.13.2"
