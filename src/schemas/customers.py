@@ -3,6 +3,10 @@ from uuid import UUID
 
 from pydantic import BaseModel, EmailStr, Field
 
+
+class AuthResponse(BaseModel):
+    customer_id: UUID = Field(alias="id")
+
 class CustomerBase(BaseModel):
     username: str
     first_name: str
@@ -19,8 +23,17 @@ class CustomerCreate(CustomerBase):
     password: str
 
 
-class CustomerUpdate(CustomerBase):
-    pass
+class CustomerUpdate(BaseModel):
+    username: str | None = None
+    password: str | None = None
+    first_name: str | None = None
+    last_name: str | None = None
+    email: EmailStr | None = None
+    address: str | None = None
+    phone: str | None = None
+
+    class Config:
+        extra = "forbid"
 
 
 class CustomerResponse(CustomerBase):

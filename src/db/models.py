@@ -14,7 +14,7 @@ class Customer(Base):
     __tablename__ = "customers"
 
     id = Column(UUID(as_uuid=True), nullable=False, unique=True, primary_key=True, default=uuid4)
-    username = Column(String(255), nullable=False, unique=True)
+    username = Column(String(255), nullable=False, unique=True, index=True)
     password = Column(String(255), nullable=False)
     first_name = Column(String(32), nullable=False)
     last_name = Column(String(32), nullable=False)

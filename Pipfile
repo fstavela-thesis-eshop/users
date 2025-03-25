@@ -11,6 +11,7 @@ fastapi = "*"
 bcrypt = "*"
 email-validator = "*"
 psycopg2 = "*"
+uvicorn = "*"
 
 [dev-packages]
 fastapi = {extras = ["standard"], version = "*"}
