@@ -1,6 +1,5 @@
 import bcrypt
 from fastapi import APIRouter, Depends, HTTPException, status, Response
-from fastapi.responses import JSONResponse
 from fastapi.security import HTTPBasic, HTTPBasicCredentials
 from db.session import get_db
 from sqlalchemy.orm import Session
@@ -8,7 +7,7 @@ from db.models import Customer
 from sqlalchemy import select
 import logging
 
-from schemas.customers import AuthResponse
+from schemas.auth import AuthResponse
 
 logger = logging.getLogger(__name__)
 
@@ -24,4 +23,5 @@ def validate(response: Response, credentials: HTTPBasicCredentials = Depends(sec
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid credentials")
 
     response.headers["x-customer-id"] = str(customer.id)
+    response.headers["x-is-admin"] = str(customer.is_admin)
     return customer

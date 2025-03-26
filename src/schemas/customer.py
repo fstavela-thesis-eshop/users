@@ -4,9 +4,6 @@ from uuid import UUID
 from pydantic import BaseModel, EmailStr, Field
 
 
-class AuthResponse(BaseModel):
-    customer_id: UUID = Field(alias="id")
-
 class CustomerBase(BaseModel):
     username: str
     first_name: str
@@ -37,7 +34,7 @@ class CustomerUpdate(BaseModel):
 
 
 class CustomerResponse(CustomerBase):
-    customer_id: UUID = Field(alias="id")
+    id: UUID
     created_at: datetime
 
     class Config:

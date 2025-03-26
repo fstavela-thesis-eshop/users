@@ -5,6 +5,6 @@ from uuid import UUID
 from db.models import Customer
 
 
-def get_db_customer_by_id(db: Session, customer_id: str | UUID) -> Customer | None:
-    stmt = select(Customer).where(Customer.id == customer_id)
-    return db.execute(stmt).scalar()
+def get_all_admin_ids(db: Session) -> list[UUID]:
+    stmt = select(Customer.id).where(Customer.is_admin)
+    return list(db.execute(stmt).scalars().all())

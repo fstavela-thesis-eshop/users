@@ -4,7 +4,7 @@ WORKDIR /customers
 
 COPY . .
 
-RUN apt-get update && apt-get install -y gcc libpq-dev curl
+RUN apt-get update && apt-get install -y gcc libpq-dev
 
 RUN pip install pipenv
 RUN pipenv install --system --deploy

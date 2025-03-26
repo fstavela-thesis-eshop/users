@@ -22,3 +22,4 @@ class Customer(Base):
     address = Column(String(256), nullable=False)
     phone = Column(String(20), nullable=False)
     created_at = Column(DateTime(timezone=True), nullable=False, default=_time_now)
+    is_admin = Column(Boolean, nullable=False, default=False)
