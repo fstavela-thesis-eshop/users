@@ -18,10 +18,12 @@ lint.select = [
     "I",
     # flake8-unused-arguments
     "ARG",
+    # FastAPI
+    "FAST",
 ]
 
-lint.ignore = [
-    "B008", # Do not perform function call `Depends` in argument defaults
+lint.extend-safe-fixes = [
+    "FAST002", # Use 'Annotated' in endpoint parameters
 ]
 
 lint.isort.force-single-line = true

@@ -1,4 +1,5 @@
 import logging
+from typing import Annotated
 from uuid import UUID
 
 from fastapi import APIRouter
@@ -24,7 +25,9 @@ admins_router = APIRouter()
     responses={status.HTTP_403_FORBIDDEN: {}, status.HTTP_404_NOT_FOUND: {}},
 )
 def add_admin(
-    customer_id: UUID, x_is_admin: bool = Header(None), db: Session = Depends(get_db)
+    customer_id: UUID,
+    db: Annotated[Session, Depends(get_db)],
+    x_is_admin: Annotated[bool | None, Header()] = None,
 ):
     if not x_is_admin:
         raise HTTPException(
@@ -44,7 +47,10 @@ def add_admin(
 @admins_router.get(
     "/", response_model=list[UUID], responses={status.HTTP_403_FORBIDDEN: {}}
 )
-def get_admins(db: Session = Depends(get_db), x_is_admin: bool = Header(None)):
+def get_admins(
+    db: Annotated[Session, Depends(get_db)],
+    x_is_admin: Annotated[bool | None, Header()] = None,
+):
     if not x_is_admin:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN, detail="You don't have admin rights"
@@ -63,7 +69,9 @@ def get_admins(db: Session = Depends(get_db), x_is_admin: bool = Header(None)):
     },
 )
 def remove_admin(
-    customer_id: UUID, x_is_admin: bool = Header(None), db: Session = Depends(get_db)
+    customer_id: UUID,
+    db: Annotated[Session, Depends(get_db)],
+    x_is_admin: Annotated[bool | None, Header()] = None,
 ):
     if not x_is_admin:
         raise HTTPException(

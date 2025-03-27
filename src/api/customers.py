@@ -1,4 +1,5 @@
 import logging
+from typing import Annotated
 from uuid import UUID
 
 import bcrypt
@@ -29,7 +30,7 @@ customers_router = APIRouter()
     status_code=status.HTTP_201_CREATED,
     responses={status.HTTP_400_BAD_REQUEST: {}},
 )
-def create_customer(customer: CustomerCreate, db: Session = Depends(get_db)):
+def create_customer(customer: CustomerCreate, db: Annotated[Session, Depends(get_db)]):
     hashed_password = bcrypt.hashpw(customer.password.encode("utf-8"), bcrypt.gensalt())
     db_customer = Customer(
         username=customer.username,
@@ -62,9 +63,9 @@ def create_customer(customer: CustomerCreate, db: Session = Depends(get_db)):
 )
 def get_customer(
     customer_id: UUID,
-    x_customer_id: str = Header(),
-    x_is_admin: bool = Header(None),
-    db: Session = Depends(get_db),
+    x_customer_id: Annotated[str, Header()],
+    db: Annotated[Session, Depends(get_db)],
+    x_is_admin: Annotated[bool | None, Header()] = None,
 ):
     if str(customer_id) != x_customer_id and not x_is_admin:
         raise HTTPException(
@@ -83,9 +84,9 @@ def get_customer(
 
 @customers_router.get("/", response_model=list[CustomerResponse])
 def get_customers(
-    x_customer_id: str = Header(),
-    x_is_admin: bool = Header(None),
-    db: Session = Depends(get_db),
+    x_customer_id: Annotated[str, Header()],
+    db: Annotated[Session, Depends(get_db)],
+    x_is_admin: Annotated[bool | None, Header()] = None,
 ):
     if x_is_admin:
         return db.execute(select(Customer)).scalars()
@@ -104,9 +105,9 @@ def get_customers(
 def update_customer(
     customer_id: UUID,
     customer: CustomerUpdate,
-    x_customer_id: str = Header(),
-    x_is_admin: bool = Header(None),
-    db: Session = Depends(get_db),
+    x_customer_id: Annotated[str, Header()],
+    db: Annotated[Session, Depends(get_db)],
+    x_is_admin: Annotated[bool | None, Header()] = None,
 ):
     if str(customer_id) != x_customer_id and not x_is_admin:
         raise HTTPException(

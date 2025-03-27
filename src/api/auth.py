@@ -1,4 +1,5 @@
 import logging
+from typing import Annotated
 
 import bcrypt
 from fastapi import APIRouter
@@ -29,8 +30,8 @@ security = HTTPBasic()
 )
 def validate(
     response: Response,
-    credentials: HTTPBasicCredentials = Depends(security),
-    db: Session = Depends(get_db),
+    credentials: Annotated[HTTPBasicCredentials, Depends(security)],
+    db: Annotated[Session, Depends(get_db)],
 ):
     stmt = select(Customer).where(Customer.username == credentials.username)
     customer = db.execute(stmt).scalar()
