@@ -10,4 +10,3 @@ RUN pip install pipenv
 RUN pipenv install --system --deploy
 
 CMD ["sh", "-c", "alembic upgrade head && cd src && uvicorn main:app --host 0.0.0.0 --port 8000 --reload"]
-

@@ -15,6 +15,9 @@ uvicorn = "*"
 
 [dev-packages]
 fastapi = {extras = ["standard"], version = "*"}
+pre-commit = "*"
+ruff = "*"
+mypy = "*"
 
 [requires]
 python_version = "3.13"

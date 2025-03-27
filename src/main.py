@@ -1,8 +1,8 @@
 from fastapi import FastAPI
-from api.customers import customers_router
-from api.auth import auth_router
-from api.admins import admins_router
 
+from api.admins import admins_router
+from api.auth import auth_router
+from api.customers import customers_router
 
 app = FastAPI()
 app.include_router(customers_router, prefix="/customers", tags=["customers"])
