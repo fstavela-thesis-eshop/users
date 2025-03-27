@@ -22,3 +22,5 @@ repos:
   - id: mypy
     additional_dependencies:
       - alembic
+      - pydantic
+      - fastapi

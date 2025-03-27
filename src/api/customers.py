@@ -30,7 +30,9 @@ customers_router = APIRouter()
     status_code=status.HTTP_201_CREATED,
     responses={status.HTTP_400_BAD_REQUEST: {}},
 )
-def create_customer(customer: CustomerCreate, db: Annotated[Session, Depends(get_db)]):
+def create_customer(
+    customer: CustomerCreate, db: Annotated[Session, Depends(get_db)]
+) -> Customer:
     hashed_password = bcrypt.hashpw(customer.password.encode("utf-8"), bcrypt.gensalt())
     db_customer = Customer(
         username=customer.username,
@@ -66,7 +68,7 @@ def get_customer(
     x_customer_id: Annotated[str, Header()],
     db: Annotated[Session, Depends(get_db)],
     x_is_admin: Annotated[bool | None, Header()] = None,
-):
+) -> Customer:
     if str(customer_id) != x_customer_id and not x_is_admin:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
@@ -87,9 +89,9 @@ def get_customers(
     x_customer_id: Annotated[str, Header()],
     db: Annotated[Session, Depends(get_db)],
     x_is_admin: Annotated[bool | None, Header()] = None,
-):
+) -> list[Customer]:
     if x_is_admin:
-        return db.execute(select(Customer)).scalars()
+        return list(db.execute(select(Customer)).scalars().all())
     return [db.get(Customer, x_customer_id)]
 
 
@@ -108,7 +110,7 @@ def update_customer(
     x_customer_id: Annotated[str, Header()],
     db: Annotated[Session, Depends(get_db)],
     x_is_admin: Annotated[bool | None, Header()] = None,
-):
+) -> Customer:
     if str(customer_id) != x_customer_id and not x_is_admin:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,

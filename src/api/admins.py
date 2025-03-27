@@ -28,7 +28,7 @@ def add_admin(
     customer_id: UUID,
     db: Annotated[Session, Depends(get_db)],
     x_is_admin: Annotated[bool | None, Header()] = None,
-):
+) -> None:
     if not x_is_admin:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN, detail="You don't have admin rights"
@@ -44,19 +44,17 @@ def add_admin(
     db.commit()
 
 
-@admins_router.get(
-    "/", response_model=list[UUID], responses={status.HTTP_403_FORBIDDEN: {}}
-)
+@admins_router.get("/", responses={status.HTTP_403_FORBIDDEN: {}})
 def get_admins(
     db: Annotated[Session, Depends(get_db)],
     x_is_admin: Annotated[bool | None, Header()] = None,
-):
+) -> list[UUID]:
     if not x_is_admin:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN, detail="You don't have admin rights"
         )
 
-    return get_all_admin_ids(db)
+    return get_all_admin_ids(db)  # type: ignore[no-any-return]
 
 
 @admins_router.delete(
@@ -72,7 +70,7 @@ def remove_admin(
     customer_id: UUID,
     db: Annotated[Session, Depends(get_db)],
     x_is_admin: Annotated[bool | None, Header()] = None,
-):
+) -> None:
     if not x_is_admin:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN, detail="You don't have admin rights"

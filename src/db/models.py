@@ -12,7 +12,7 @@ from sqlalchemy.orm import declarative_base
 Base = declarative_base()
 
 
-def _time_now():
+def _time_now() -> datetime:
     return datetime.now(UTC)
 
 
