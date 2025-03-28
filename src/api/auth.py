@@ -33,8 +33,8 @@ def validate(
     credentials: Annotated[HTTPBasicCredentials, Depends(security)],
     db: Annotated[Session, Depends(get_db)],
 ) -> Customer:
-    stmt = select(Customer).where(Customer.username == credentials.username)
-    customer = db.execute(stmt).scalar()
+    query = select(Customer).where(Customer.username == credentials.username)
+    customer = db.scalar(query)
     if not customer or not bcrypt.checkpw(
         credentials.password.encode("utf-8"), customer.password.encode("utf-8")
     ):

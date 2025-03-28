@@ -1,3 +1,4 @@
+from typing import cast
 from uuid import UUID
 
 from sqlalchemy import select
@@ -7,5 +8,5 @@ from db.models import Customer
 
 
 def get_all_admin_ids(db: Session) -> list[UUID]:
-    stmt = select(Customer.id).where(Customer.is_admin)
-    return list(db.execute(stmt).scalars().all())
+    query = select(Customer.id).where(Customer.is_admin)
+    return cast(list[UUID], db.scalars(query).all())

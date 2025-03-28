@@ -19,6 +19,19 @@ logger = logging.getLogger(__name__)
 admins_router = APIRouter()
 
 
+@admins_router.get("", responses={status.HTTP_403_FORBIDDEN: {}})
+def get_admins(
+    x_is_admin: Annotated[bool, Header()],
+    db: Annotated[Session, Depends(get_db)],
+) -> list[UUID]:
+    if not x_is_admin:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN, detail="You don't have admin rights"
+        )
+
+    return get_all_admin_ids(db)  # type: ignore[no-any-return]
+
+
 @admins_router.put(
     "/{customer_id}",
     status_code=status.HTTP_204_NO_CONTENT,
@@ -78,16 +91,3 @@ def remove_admin(
 
     db_customer.is_admin = False
     db.commit()
-
-
-@admins_router.get("", responses={status.HTTP_403_FORBIDDEN: {}})
-def get_admins(
-    x_is_admin: Annotated[bool, Header()],
-    db: Annotated[Session, Depends(get_db)],
-) -> list[UUID]:
-    if not x_is_admin:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN, detail="You don't have admin rights"
-        )
-
-    return get_all_admin_ids(db)  # type: ignore[no-any-return]
