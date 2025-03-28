@@ -58,43 +58,6 @@ def create_customer(
     return db_customer
 
 
-@customers_router.get(
-    "/{customer_id}",
-    response_model=CustomerResponse,
-    responses={status.HTTP_403_FORBIDDEN: {}, status.HTTP_404_NOT_FOUND: {}},
-)
-def get_customer(
-    customer_id: UUID,
-    x_customer_id: Annotated[str, Header()],
-    db: Annotated[Session, Depends(get_db)],
-    x_is_admin: Annotated[bool | None, Header()] = None,
-) -> Customer:
-    if str(customer_id) != x_customer_id and not x_is_admin:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="You can't get a different customer's data",
-        )
-
-    db_customer = db.get(Customer, customer_id)
-    if not db_customer:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail="Customer not found"
-        )
-
-    return db_customer
-
-
-@customers_router.get("/", response_model=list[CustomerResponse])
-def get_customers(
-    x_customer_id: Annotated[str, Header()],
-    db: Annotated[Session, Depends(get_db)],
-    x_is_admin: Annotated[bool | None, Header()] = None,
-) -> list[Customer]:
-    if x_is_admin:
-        return list(db.execute(select(Customer)).scalars().all())
-    return [db.get(Customer, x_customer_id)]
-
-
 @customers_router.patch(
     "/{customer_id}",
     response_model=CustomerResponse,
@@ -108,8 +71,8 @@ def update_customer(
     customer_id: UUID,
     customer: CustomerUpdate,
     x_customer_id: Annotated[str, Header()],
+    x_is_admin: Annotated[bool, Header()],
     db: Annotated[Session, Depends(get_db)],
-    x_is_admin: Annotated[bool | None, Header()] = None,
 ) -> Customer:
     if str(customer_id) != x_customer_id and not x_is_admin:
         raise HTTPException(
@@ -137,4 +100,41 @@ def update_customer(
         ) from err
 
     db.refresh(db_customer)
+    return db_customer
+
+
+@customers_router.get("", response_model=list[CustomerResponse])
+def get_customers(
+    x_customer_id: Annotated[str, Header()],
+    x_is_admin: Annotated[bool, Header()],
+    db: Annotated[Session, Depends(get_db)],
+) -> list[Customer]:
+    if x_is_admin:
+        return list(db.execute(select(Customer)).scalars().all())
+    return [db.get(Customer, x_customer_id)]
+
+
+@customers_router.get(
+    "/{customer_id}",
+    response_model=CustomerResponse,
+    responses={status.HTTP_403_FORBIDDEN: {}, status.HTTP_404_NOT_FOUND: {}},
+)
+def get_customer(
+    customer_id: UUID,
+    x_customer_id: Annotated[str, Header()],
+    x_is_admin: Annotated[bool, Header()],
+    db: Annotated[Session, Depends(get_db)],
+) -> Customer:
+    if str(customer_id) != x_customer_id and not x_is_admin:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="You can't get a different customer's data",
+        )
+
+    db_customer = db.get(Customer, customer_id)
+    if not db_customer:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Customer not found"
+        )
+
     return db_customer

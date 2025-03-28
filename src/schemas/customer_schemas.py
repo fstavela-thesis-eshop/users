@@ -22,7 +22,6 @@ class CustomerCreate(CustomerBase):
 
 
 class CustomerUpdate(BaseModel):
-    username: str | None = None
     password: str | None = None
     first_name: str | None = None
     last_name: str | None = None
@@ -37,6 +36,3 @@ class CustomerUpdate(BaseModel):
 class CustomerResponse(CustomerBase):
     id: UUID
     created_at: datetime
-
-    class Config:
-        from_attributes = True

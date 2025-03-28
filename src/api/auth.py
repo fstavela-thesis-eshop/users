@@ -24,7 +24,7 @@ security = HTTPBasic()
 
 
 @auth_router.get(
-    "/validate",
+    "",
     response_model=AuthResponse,
     responses={status.HTTP_401_UNAUTHORIZED: {}},
 )
