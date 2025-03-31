@@ -31,7 +31,7 @@ def get_customers(
     db: Annotated[Session, Depends(get_db)],
 ) -> list[Customer]:
     if x_is_admin:
-        return list(db.execute(select(Customer)).scalars().all())
+        return list(db.scalars(select(Customer)).all())
     return [db.get(Customer, x_customer_id)]
 
 
