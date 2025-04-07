@@ -21,6 +21,7 @@ app.include_router(admins_router, prefix="/admins", tags=["admins"])
 app.openapi = partial(custom_openapi, app)  # type: ignore[method-assign]
 
 
-db = next(get_db())
-if len(get_all_admin_ids(db)) == 0:
-    add_default_admin(db)
+if __name__ == "__main__":
+    db = next(get_db())
+    if len(get_all_admin_ids(db)) == 0:
+        add_default_admin(db)

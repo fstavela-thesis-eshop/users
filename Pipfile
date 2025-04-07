@@ -18,6 +18,10 @@ fastapi = {extras = ["standard"], version = "*"}
 pre-commit = "*"
 ruff = "*"
 mypy = "*"
+pytest = "*"
+pytest-cov = "*"
+pytest-mypy = "*"
+pytest-repeat = "*"
 
 [requires]
 python_version = "3.13"

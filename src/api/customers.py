@@ -126,8 +126,15 @@ def update_customer(
         )
 
     update_data = input_customer.model_dump(exclude_unset=True)
-    for k, v in update_data.items():
-        setattr(db_customer, k, v)
+    for key, value in update_data.items():
+        if key == "password":
+            setattr(
+                db_customer,
+                key,
+                bcrypt.hashpw(value.encode("utf-8"), bcrypt.gensalt()).decode("utf-8"),
+            )
+        else:
+            setattr(db_customer, key, value)
 
     try:
         db.commit()

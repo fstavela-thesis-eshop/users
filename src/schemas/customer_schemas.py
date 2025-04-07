@@ -2,6 +2,7 @@ from datetime import datetime
 from uuid import UUID
 
 from pydantic import BaseModel
+from pydantic import ConfigDict
 from pydantic import EmailStr
 
 
@@ -13,8 +14,7 @@ class CustomerBase(BaseModel):
     address: str
     phone: str
 
-    class Config:
-        extra = "forbid"
+    model_config = ConfigDict(extra="forbid")
 
 
 class CustomerCreate(CustomerBase):
@@ -29,8 +29,7 @@ class CustomerUpdate(BaseModel):
     address: str | None = None
     phone: str | None = None
 
-    class Config:
-        extra = "forbid"
+    model_config = ConfigDict(extra="forbid")
 
 
 class CustomerResponse(CustomerBase):
