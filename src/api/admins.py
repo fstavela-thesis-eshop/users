@@ -4,11 +4,11 @@ from uuid import UUID
 
 from fastapi import APIRouter
 from fastapi import Depends
-from fastapi import Header
 from fastapi import HTTPException
 from fastapi import status
 from sqlalchemy.orm import Session
 
+from api.helpers import HeaderNoSchema
 from db.helpers import get_all_admin_ids
 from db.models import Customer
 from db.session import get_db
@@ -21,7 +21,7 @@ admins_router = APIRouter()
 
 @admins_router.get("", responses={status.HTTP_403_FORBIDDEN: {}})
 def get_admins(
-    x_is_admin: Annotated[bool, Header()],
+    x_is_admin: Annotated[bool, HeaderNoSchema()],
     db: Annotated[Session, Depends(get_db)],
 ) -> list[UUID]:
     if not x_is_admin:
@@ -39,7 +39,7 @@ def get_admins(
 )
 def add_admin(
     customer_id: UUID,
-    x_is_admin: Annotated[bool, Header()],
+    x_is_admin: Annotated[bool, HeaderNoSchema()],
     db: Annotated[Session, Depends(get_db)],
 ) -> None:
     if not x_is_admin:
@@ -68,7 +68,7 @@ def add_admin(
 )
 def remove_admin(
     customer_id: UUID,
-    x_is_admin: Annotated[bool, Header()],
+    x_is_admin: Annotated[bool, HeaderNoSchema()],
     db: Annotated[Session, Depends(get_db)],
 ) -> None:
     if not x_is_admin:

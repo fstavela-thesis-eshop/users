@@ -5,13 +5,13 @@ from uuid import UUID
 import bcrypt
 from fastapi import APIRouter
 from fastapi import Depends
-from fastapi import Header
 from fastapi import HTTPException
 from fastapi import status
 from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
+from api.helpers import HeaderNoSchema
 from db.models import Customer
 from db.session import get_db
 from schemas.customer_schemas import CustomerCreate
@@ -26,8 +26,8 @@ customers_router = APIRouter()
 
 @customers_router.get("", response_model=list[CustomerResponse])
 def get_customers(
-    x_customer_id: Annotated[str, Header()],
-    x_is_admin: Annotated[bool, Header()],
+    x_customer_id: Annotated[str, HeaderNoSchema()],
+    x_is_admin: Annotated[bool, HeaderNoSchema()],
     db: Annotated[Session, Depends(get_db)],
 ) -> list[Customer]:
     if x_is_admin:
@@ -42,8 +42,8 @@ def get_customers(
 )
 def get_customer(
     customer_id: UUID,
-    x_customer_id: Annotated[str, Header()],
-    x_is_admin: Annotated[bool, Header()],
+    x_customer_id: Annotated[str, HeaderNoSchema()],
+    x_is_admin: Annotated[bool, HeaderNoSchema()],
     db: Annotated[Session, Depends(get_db)],
 ) -> Customer:
     if str(customer_id) != x_customer_id and not x_is_admin:
@@ -75,7 +75,7 @@ def create_customer(
     )
     db_customer = Customer(
         username=input_customer.username,
-        password=hashed_password.decode(),
+        password=hashed_password.decode("utf-8"),
         first_name=input_customer.first_name,
         last_name=input_customer.last_name,
         email=input_customer.email,
@@ -109,8 +109,8 @@ def create_customer(
 def update_customer(
     customer_id: UUID,
     input_customer: CustomerUpdate,
-    x_customer_id: Annotated[str, Header()],
-    x_is_admin: Annotated[bool, Header()],
+    x_customer_id: Annotated[str, HeaderNoSchema()],
+    x_is_admin: Annotated[bool, HeaderNoSchema()],
     db: Annotated[Session, Depends(get_db)],
 ) -> Customer:
     if str(customer_id) != x_customer_id and not x_is_admin:

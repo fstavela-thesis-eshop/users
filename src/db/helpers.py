@@ -2,6 +2,7 @@ import logging
 from typing import cast
 from uuid import UUID
 
+import bcrypt
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
@@ -17,10 +18,11 @@ def get_all_admin_ids(db: Session) -> list[UUID]:
 
 def add_default_admin(db: Session) -> None:
     logger.info("Adding default admin")
+    hashed_password = bcrypt.hashpw(b"admin", bcrypt.gensalt())
     db.add(
         Customer(
             username="admin",
-            password="admin",
+            password=hashed_password.decode("utf-8"),
             first_name="admin",
             last_name="admin",
             email="admin@example.com",
