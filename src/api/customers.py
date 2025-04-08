@@ -88,6 +88,7 @@ def create_customer(
         db.commit()
     except IntegrityError as err:
         logger.error(f"Error while creating a new customer: {err.args}")
+        db.rollback()
         err_message = err.args[0].split("\n")[-2]
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST, detail=err_message
@@ -140,6 +141,7 @@ def update_customer(
         db.commit()
     except IntegrityError as err:
         logger.error(f"Error while updating a customer: {err.args}")
+        db.rollback()
         err_message = err.args[0].split("\n")[-2]
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST, detail=err_message

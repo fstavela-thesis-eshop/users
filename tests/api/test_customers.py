@@ -203,6 +203,7 @@ def test_create_customer_db_error(api_client: TestClient, mock_db: MagicMock) ->
 
     response = api_client.post("/customers/create", json=customer_data)
     assert response.status_code == 400
+    mock_db.rollback.assert_called_once()
 
 
 @pytest.mark.parametrize("customer_id", ("str", "123", str(uuid4()) + "a"))
@@ -417,3 +418,4 @@ def test_update_customer_db_error(api_client: TestClient, mock_db: MagicMock) ->
         json=update_data,
     )
     assert response.status_code == 400
+    mock_db.rollback.assert_called_once()

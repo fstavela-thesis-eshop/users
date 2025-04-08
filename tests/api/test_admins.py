@@ -1,3 +1,4 @@
+import logging
 from typing import Any
 from unittest.mock import MagicMock
 from uuid import UUID
@@ -5,9 +6,14 @@ from uuid import uuid4
 
 import pytest
 from fastapi.testclient import TestClient
+from pytest_mock.plugin import MockerFixture
+from sqlalchemy import Select
+from sqlalchemy import select
 
 from db.models import Customer
 from tests.helpers import generate_random_db_customer
+
+logger = logging.getLogger(__name__)
 
 
 def test_get_admins_forbidden(api_client: TestClient) -> None:
@@ -17,11 +23,22 @@ def test_get_admins_forbidden(api_client: TestClient) -> None:
     assert response.status_code == 403
 
 
-def test_get_admins_success(api_client: TestClient, mock_db: MagicMock) -> None:
+def test_get_admins_success(
+    api_client: TestClient, mock_db: MagicMock, mocker: MockerFixture
+) -> None:
     mock_admin1 = generate_random_db_customer(is_admin=True)
     mock_admin2 = generate_random_db_customer(is_admin=True)
 
-    mock_db.scalars.return_value.all.return_value = [mock_admin1.id, mock_admin2.id]
+    mock_return = mocker.Mock()
+
+    def _scalars(query: Select[Customer.id]) -> mocker.Mock:
+        assert str(query.compile()) == str(
+            select(Customer.id).where(Customer.is_admin).compile()
+        )
+        return mock_return
+
+    mock_db.scalars = _scalars
+    mock_return.all.return_value = [mock_admin1.id, mock_admin2.id]
 
     response = api_client.get(
         "/admins",
@@ -131,15 +148,26 @@ def test_remove_admin_not_found(api_client: TestClient, mock_db: MagicMock) -> N
     assert response.status_code == 404
 
 
-def test_remove_last_admin(api_client: TestClient, mock_db: MagicMock) -> None:
+def test_remove_last_admin(
+    api_client: TestClient, mock_db: MagicMock, mocker: MockerFixture
+) -> None:
     mock_admin = generate_random_db_customer(is_admin=True)
 
     def _get_customer(_: Any, user_id: UUID) -> Customer:
         assert user_id == mock_admin.id
         return mock_admin
 
+    mock_return = mocker.Mock()
+
+    def _scalars(query: Select[Customer.id]) -> mocker.Mock:
+        assert str(query.compile()) == str(
+            select(Customer.id).where(Customer.is_admin).compile()
+        )
+        return mock_return
+
     mock_db.get = _get_customer
-    mock_db.scalars.return_value.all.return_value = [mock_admin.id]
+    mock_db.scalars = _scalars
+    mock_return.all.return_value = [mock_admin.id]
 
     response = api_client.delete(
         f"/admins/{str(mock_admin.id)}",
@@ -150,7 +178,7 @@ def test_remove_last_admin(api_client: TestClient, mock_db: MagicMock) -> None:
 
 @pytest.mark.parametrize("was_admin", (True, False))
 def test_remove_admin_success(
-    api_client: TestClient, mock_db: MagicMock, was_admin: bool
+    api_client: TestClient, mock_db: MagicMock, was_admin: bool, mocker: MockerFixture
 ) -> None:
     mock_admin = generate_random_db_customer(is_admin=True)
     mock_user = generate_random_db_customer(is_admin=was_admin)
@@ -159,8 +187,17 @@ def test_remove_admin_success(
         assert user_id == mock_user.id
         return mock_user
 
+    mock_return = mocker.Mock()
+
+    def _scalars(query: Select[Customer.id]) -> mocker.Mock:
+        assert str(query.compile()) == str(
+            select(Customer.id).where(Customer.is_admin).compile()
+        )
+        return mock_return
+
     mock_db.get = _get_customer
-    mock_db.scalars.return_value.all.return_value = [mock_admin.id, mock_user.id]
+    mock_db.scalars = _scalars
+    mock_return.all.return_value = [mock_admin.id, mock_user.id]
 
     response = api_client.delete(
         f"/admins/{str(mock_user.id)}",

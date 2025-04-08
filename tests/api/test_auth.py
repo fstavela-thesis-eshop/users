@@ -3,7 +3,10 @@ from unittest.mock import MagicMock
 import bcrypt
 import pytest
 from fastapi.testclient import TestClient
+from sqlalchemy import Select
+from sqlalchemy import select
 
+from db.models import Customer
 from tests.helpers import generate_random_db_customer
 
 
@@ -17,7 +20,13 @@ def test_auth_success(
         password.encode("utf-8"), bcrypt.gensalt()
     ).decode("utf-8")
 
-    mock_db.scalar.return_value = mock_user
+    def _scalar(query: Select[Customer]) -> Customer:
+        assert str(query.compile()) == str(
+            select(Customer).where(Customer.username == mock_user.username).compile()
+        )
+        return mock_user
+
+    mock_db.scalar = _scalar
 
     response = api_client.get("/auth", auth=(mock_user.username, password))
 
@@ -34,8 +43,15 @@ def test_auth_success(
 
 
 def test_auth_wrong_username(api_client: TestClient, mock_db: MagicMock) -> None:
-    mock_db.scalar.return_value = None
-    response = api_client.get("/auth", auth=("username", "password"))
+    def _scalar(query: Select[Customer]) -> None:
+        assert str(query.compile()) == str(
+            select(Customer).where(Customer.username == "my-user").compile()
+        )
+        return None
+
+    mock_db.scalar = _scalar
+
+    response = api_client.get("/auth", auth=("my-user", "password"))
     assert response.status_code == 401
 
 
@@ -44,7 +60,14 @@ def test_auth_wrong_password(
     api_client: TestClient, mock_db: MagicMock, is_admin: bool
 ) -> None:
     mock_user = generate_random_db_customer(is_admin=is_admin)
-    mock_db.scalar.return_value = mock_user
+
+    def _scalar(query: Select[Customer]) -> Customer:
+        assert str(query.compile()) == str(
+            select(Customer).where(Customer.username == mock_user.username).compile()
+        )
+        return mock_user
+
+    mock_db.scalar = _scalar
 
     response = api_client.get("/auth", auth=(mock_user.username, "wrong-password"))
     assert response.status_code == 401
