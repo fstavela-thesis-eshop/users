@@ -13,6 +13,8 @@ from db.session import get_db
 
 logging.basicConfig(level=logging.INFO)
 
+logger = logging.getLogger(__name__)
+
 app = FastAPI()
 app.include_router(customers_router, prefix="/customers", tags=["customers"])
 app.include_router(auth_router, prefix="/auth", tags=["auth"])
@@ -20,8 +22,7 @@ app.include_router(admins_router, prefix="/admins", tags=["admins"])
 
 app.openapi = partial(custom_openapi, app)  # type: ignore[method-assign]
 
-
-if __name__ == "__main__":
+if __name__ == "main":
     db = next(get_db())
     if len(get_all_admin_ids(db)) == 0:
         add_default_admin(db)
